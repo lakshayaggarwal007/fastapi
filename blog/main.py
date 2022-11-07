@@ -1,5 +1,5 @@
 from fastapi import FastAPI,Depends,status,Response,HTTPException,Request
-import schemas , models 
+import schemas , models ,token
 from database import engine,SessionLocal
 from sqlalchemy.orm import Session
 from typing import List
@@ -20,14 +20,19 @@ def get_db():
 
 
 @app.post('/login',tags=['Authentication'])
-def login():
-    return 'login'
-
+def login(request:schemas.Login,db:Session= Depends(get_db)):
+    user = db.query(models.User).filter(models.User.email==request.username).first()
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=f'invalid credentials')
+    if not Hash.verify(user.password,request.password):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=f'incorrect password')
+    
+    return user
 
 
 @app.post('/user',response_model=schemas.ShowUser,tags=['Users'])
 def create_user(request:schemas.User, db:Session = Depends(get_db)):
-    
+    0
     new_user = models.User(name=request.name,email=request.email,password=Hash.bcrypt(request.password))
    
     db.add(new_user)

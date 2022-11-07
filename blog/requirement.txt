@@ -4,3 +4,4 @@ pydantic
 typing
 sqlalchemy
 passlib
+python-jose
